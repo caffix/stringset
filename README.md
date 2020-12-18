@@ -1,6 +1,5 @@
 # String Set
 
-[![GitHub Release Date](https://img.shields.io/github/release-date/caffix/stringset)](https://github.com/caffix/stringset/releases/latest)
 [![License](https://img.shields.io/github/license/caffix/stringset)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Go Report](https://goreportcard.com/badge/github.com/caffix/stringset)](https://goreportcard.com/report/github.com/caffix/stringset)
 [![Follow on Twitter](https://img.shields.io/twitter/follow/jeff_foley.svg?logo=twitter)](https://twitter.com/jeff_foley)
