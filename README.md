@@ -1,0 +1,17 @@
+# String Set
+
+[![GitHub Release Date](https://img.shields.io/github/release-date/caffix/stringset)](https://github.com/caffix/stringset/releases/latest)
+[![License](https://img.shields.io/github/license/caffix/stringset)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Go Report](https://goreportcard.com/badge/github.com/caffix/stringset)](https://goreportcard.com/report/github.com/caffix/stringset)
+[![Follow on Twitter](https://img.shields.io/twitter/follow/jeff_foley.svg?logo=twitter)](https://twitter.com/jeff_foley)
+
+## Contributors
+
+* [Jeff Foley](https://github.com/caffix) aka `caffix`
+  [![Follow on Twitter](https://img.shields.io/twitter/follow/jeff_foley.svg?logo=twitter)](https://twitter.com/jeff_foley)
+* [Anthony Rhodes](https://github.com/fork-while-fork) aka `fork-while-fork`
+  [![Follow on Twitter](https://img.shields.io/twitter/follow/fork_while_fork.svg?logo=twitter)](https://twitter.com/fork_while_fork)
+
+## Licensing [![License](https://img.shields.io/github/license/caffix/stringset)](https://www.apache.org/licenses/LICENSE-2.0)
+
+This program is free software: you can redistribute it and/or modify it under the terms of the [Apache license](LICENSE). OWASP Amass and any contributions are Copyright © by Jeff Foley 2017-2020.
