@@ -88,23 +88,10 @@ func (s Set) Subtract(other Set) {
 // Intersect causes the receiver Set to only contain elements also found in the
 // other Set argument.
 func (s Set) Intersect(other Set) {
-	intersect := New()
-
-	for item := range other {
-		if s.Has(item) {
-			intersect.Insert(item)
-		}
-	}
-
-	var remove []string
 	for item := range s {
-		if !intersect.Has(item) {
-			remove = append(remove, item)
+		if !other.Has(item) {
+			s.Remove(item)
 		}
-	}
-
-	for _, r := range remove {
-		s.Remove(r)
 	}
 }
 
