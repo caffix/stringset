@@ -89,8 +89,9 @@ func (s Set) Subtract(other Set) {
 // other Set argument.
 func (s Set) Intersect(other Set) {
 	for item := range s {
-		if !other.Has(item) {
-			s.Remove(item)
+		e := strings.ToLower(item)
+		if _, exists := other[e]; !exists {
+			delete(s, e)
 		}
 	}
 }
