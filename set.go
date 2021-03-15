@@ -81,9 +81,7 @@ func (s Set) Len() int {
 // Subtract removes all elements in the other Set argument from the receiver Set.
 func (s Set) Subtract(other Set) {
 	for item := range other {
-		if s.Has(item) {
-			s.Remove(item)
-		}
+		s.Remove(item)
 	}
 }
 
