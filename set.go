@@ -1,6 +1,7 @@
 package stringset
 
 import (
+	"os"
 	"runtime"
 	"sync"
 	"time"
@@ -15,6 +16,7 @@ type Set struct {
 	elements     map[string]nothing
 	memSaveState bool
 	db           *badger.DB
+	dbPath       string
 	done         chan struct{}
 }
 
@@ -46,6 +48,7 @@ func (s Set) Close() {
 	s.elements = make(map[string]nothing)
 	if s.memSaveState {
 		s.db.Close()
+		os.RemoveAll(s.dbPath)
 		s.memSaveState = false
 	}
 }
@@ -184,7 +187,7 @@ func (s *Set) Set(input string) error {
 }
 
 func (s Set) checkMemory() {
-	max := uint64(1 << 30)
+	max := 750 * uint64(1<<20) // MB
 	var m runtime.MemStats
 	t := time.NewTicker(10 * time.Second)
 	defer t.Stop()
@@ -192,9 +195,11 @@ loop:
 	for {
 		select {
 		case <-t.C:
-			runtime.ReadMemStats(&m)
-			if m.Alloc >= max {
-				s.setMemSaveState()
+			if !s.memSaveState && len(s.elements) > 100 {
+				runtime.ReadMemStats(&m)
+				if m.Alloc >= max {
+					s.setMemSaveState()
+				}
 			}
 		case <-s.done:
 			break loop

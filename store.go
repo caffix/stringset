@@ -26,6 +26,7 @@ func (s *Set) setupStore() error {
 	if err != nil {
 		return err
 	}
+	s.dbPath = path
 
 	opts := badger.DefaultOptions(path)
 	opts.EventLogging = false
