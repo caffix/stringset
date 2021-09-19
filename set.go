@@ -1,16 +1,22 @@
 package stringset
 
 import (
-	"fmt"
-	"strings"
+	"runtime"
+	"sync"
+	"time"
+
+	"github.com/dgraph-io/badger"
 )
 
-type (
-	// Set implements set operations for string values.
-	Set map[string]nothing
+type nothing struct{}
 
-	nothing struct{}
-)
+type Set struct {
+	sync.Mutex
+	elements     map[string]nothing
+	memSaveState bool
+	db           *badger.DB
+	done         chan struct{}
+}
 
 // Deduplicate utilizes the Set type to generate a unique list of strings from the input slice.
 func Deduplicate(input []string) []string {
@@ -18,98 +24,180 @@ func Deduplicate(input []string) []string {
 }
 
 // New returns a Set containing the values provided in the arguments.
-func New(initial ...string) Set {
-	s := make(Set)
+func New(initial ...string) *Set {
+	s := &Set{
+		elements: make(map[string]nothing, 50),
+		done:     make(chan struct{}, 2),
+	}
 
 	for _, v := range initial {
 		s.Insert(v)
 	}
 
+	go s.checkMemory()
 	return s
+}
+
+func (s Set) Close() {
+	s.Lock()
+	defer s.Unlock()
+
+	s.done <- struct{}{}
+	s.elements = make(map[string]nothing)
+	if s.memSaveState {
+		s.db.Close()
+		s.memSaveState = false
+	}
 }
 
 // Has returns true if the receiver Set already contains the element string argument.
 func (s Set) Has(element string) bool {
-	_, exists := s[strings.ToLower(element)]
-	return exists
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		return s.storeHas(element)
+	}
+
+	return s.memHas(element)
 }
 
 // Insert adds the element string argument to the receiver Set.
 func (s Set) Insert(element string) {
-	s[strings.ToLower(element)] = nothing{}
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeInsert(element)
+	}
+
+	s.memInsert(element)
 }
 
 // InsertMany adds all the elements strings into the receiver Set.
 func (s Set) InsertMany(elements ...string) {
-	for _, i := range elements {
-		s.Insert(i)
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeInsertMany(elements...)
 	}
+
+	s.memInsertMany(elements...)
 }
 
 // Remove will delete the element string from the receiver Set.
 func (s Set) Remove(element string) {
-	e := strings.ToLower(element)
-	delete(s, e)
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeRemove(element)
+	}
+
+	s.memRemove(element)
 }
 
 // Slice returns a string slice that contains all the elements in the Set.
 func (s Set) Slice() []string {
-	var i uint64
+	s.Lock()
+	defer s.Unlock()
 
-	k := make([]string, len(s))
-
-	for key := range s {
-		k[i] = key
-		i++
+	if s.memSaveState {
+		return s.storeSlice()
 	}
 
-	return k
+	return s.memSlice()
 }
 
 // Union adds all the elements from the other Set argument into the receiver Set.
-func (s Set) Union(other Set) {
-	for k := range other {
-		s.Insert(k)
+func (s Set) Union(other *Set) {
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeUnion(other)
 	}
+
+	s.memUnion(other)
 }
 
 // Len returns the number of elements in the receiver Set.
 func (s Set) Len() int {
-	return len(s)
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		return s.storeLen()
+	}
+
+	return s.memLen()
 }
 
 // Subtract removes all elements in the other Set argument from the receiver Set.
-func (s Set) Subtract(other Set) {
-	for item := range other {
-		s.Remove(item)
+func (s Set) Subtract(other *Set) {
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeSubtract(other)
 	}
+
+	s.memSubtract(other)
 }
 
 // Intersect causes the receiver Set to only contain elements also found in the
 // other Set argument.
-func (s Set) Intersect(other Set) {
-	for item := range s {
-		e := strings.ToLower(item)
-		if _, exists := other[e]; !exists {
-			delete(s, e)
-		}
+func (s Set) Intersect(other *Set) {
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		s.storeIntersect(other)
 	}
+
+	s.memIntersect(other)
 }
 
 // Set implements the flag.Value interface.
 func (s *Set) String() string {
-	return strings.Join(s.Slice(), ",")
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		return s.storeString()
+	}
+
+	return s.memString()
 }
 
 // Set implements the flag.Value interface.
 func (s *Set) Set(input string) error {
-	if input == "" {
-		return fmt.Errorf("String parsing failed")
+	s.Lock()
+	defer s.Unlock()
+
+	if s.memSaveState {
+		return s.storeSet(input)
 	}
 
-	items := strings.Split(input, ",")
-	for _, item := range items {
-		s.Insert(strings.TrimSpace(item))
+	return s.memSet(input)
+}
+
+func (s Set) checkMemory() {
+	max := uint64(1 << 30)
+	var m runtime.MemStats
+	t := time.NewTicker(10 * time.Second)
+	defer t.Stop()
+loop:
+	for {
+		select {
+		case <-t.C:
+			runtime.ReadMemStats(&m)
+			if m.Alloc >= max {
+				s.setMemSaveState()
+			}
+		case <-s.done:
+			break loop
+		}
 	}
-	return nil
 }
