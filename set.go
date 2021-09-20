@@ -22,7 +22,10 @@ type Set struct {
 
 // Deduplicate utilizes the Set type to generate a unique list of strings from the input slice.
 func Deduplicate(input []string) []string {
-	return New(input...).Slice()
+	ss := New(input...)
+	defer ss.Close()
+
+	return ss.Slice()
 }
 
 // New returns a Set containing the values provided in the arguments.
@@ -191,7 +194,7 @@ func (s Set) checkMemory() {
 	var m runtime.MemStats
 	t := time.NewTicker(10 * time.Second)
 	defer t.Stop()
-loop:
+
 	for {
 		select {
 		case <-t.C:
@@ -199,10 +202,11 @@ loop:
 				runtime.ReadMemStats(&m)
 				if m.Alloc >= max {
 					s.setMemSaveState()
+					return
 				}
 			}
 		case <-s.done:
-			break loop
+			return
 		}
 	}
 }
