@@ -43,7 +43,7 @@ func New(initial ...string) *Set {
 	return s
 }
 
-func (s Set) Close() {
+func (s *Set) Close() {
 	s.Lock()
 	defer s.Unlock()
 
@@ -57,7 +57,7 @@ func (s Set) Close() {
 }
 
 // Has returns true if the receiver Set already contains the element string argument.
-func (s Set) Has(element string) bool {
+func (s *Set) Has(element string) bool {
 	s.Lock()
 	defer s.Unlock()
 
@@ -69,7 +69,7 @@ func (s Set) Has(element string) bool {
 }
 
 // Insert adds the element string argument to the receiver Set.
-func (s Set) Insert(element string) {
+func (s *Set) Insert(element string) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -81,7 +81,7 @@ func (s Set) Insert(element string) {
 }
 
 // InsertMany adds all the elements strings into the receiver Set.
-func (s Set) InsertMany(elements ...string) {
+func (s *Set) InsertMany(elements ...string) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -93,7 +93,7 @@ func (s Set) InsertMany(elements ...string) {
 }
 
 // Remove will delete the element string from the receiver Set.
-func (s Set) Remove(element string) {
+func (s *Set) Remove(element string) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -105,7 +105,7 @@ func (s Set) Remove(element string) {
 }
 
 // Slice returns a string slice that contains all the elements in the Set.
-func (s Set) Slice() []string {
+func (s *Set) Slice() []string {
 	s.Lock()
 	defer s.Unlock()
 
@@ -117,7 +117,7 @@ func (s Set) Slice() []string {
 }
 
 // Union adds all the elements from the other Set argument into the receiver Set.
-func (s Set) Union(other *Set) {
+func (s *Set) Union(other *Set) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -129,7 +129,7 @@ func (s Set) Union(other *Set) {
 }
 
 // Len returns the number of elements in the receiver Set.
-func (s Set) Len() int {
+func (s *Set) Len() int {
 	s.Lock()
 	defer s.Unlock()
 
@@ -141,7 +141,7 @@ func (s Set) Len() int {
 }
 
 // Subtract removes all elements in the other Set argument from the receiver Set.
-func (s Set) Subtract(other *Set) {
+func (s *Set) Subtract(other *Set) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -154,7 +154,7 @@ func (s Set) Subtract(other *Set) {
 
 // Intersect causes the receiver Set to only contain elements also found in the
 // other Set argument.
-func (s Set) Intersect(other *Set) {
+func (s *Set) Intersect(other *Set) {
 	s.Lock()
 	defer s.Unlock()
 
@@ -189,7 +189,7 @@ func (s *Set) Set(input string) error {
 	return s.memSet(input)
 }
 
-func (s Set) checkMemory() {
+func (s *Set) checkMemory() {
 	max := 750 * uint64(1<<20) // MB
 	var m runtime.MemStats
 	t := time.NewTicker(10 * time.Second)
