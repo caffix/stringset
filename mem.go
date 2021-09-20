@@ -40,7 +40,7 @@ func (s *Set) memSlice() []string {
 }
 
 func (s *Set) memUnion(other *Set) {
-	for _, item := range other.Slice() {
+	for _, item := range other.memSlice() {
 		s.memInsert(item)
 	}
 }
@@ -50,7 +50,7 @@ func (s *Set) memLen() int {
 }
 
 func (s *Set) memSubtract(other *Set) {
-	for _, item := range other.Slice() {
+	for _, item := range other.memSlice() {
 		s.memRemove(item)
 	}
 }
@@ -66,7 +66,7 @@ func (s *Set) memIntersect(other *Set) {
 }
 
 func (s *Set) memString() string {
-	return strings.Join(s.Slice(), ",")
+	return strings.Join(s.memSlice(), ",")
 }
 
 func (s *Set) memSet(input string) error {

@@ -102,7 +102,7 @@ func (s *Set) storeSlice() []string {
 }
 
 func (s *Set) storeUnion(other *Set) {
-	for _, item := range other.Slice() {
+	for _, item := range other.storeSlice() {
 		s.storeInsert(item)
 	}
 }
@@ -112,7 +112,7 @@ func (s *Set) storeLen() int {
 }
 
 func (s *Set) storeSubtract(other *Set) {
-	for _, item := range other.Slice() {
+	for _, item := range other.storeSlice() {
 		s.storeRemove(item)
 	}
 }
