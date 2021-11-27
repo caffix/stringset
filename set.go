@@ -198,7 +198,7 @@ func (s *Set) checkMemory() {
 	for {
 		select {
 		case <-t.C:
-			if !s.memSaveState && len(s.elements) > 100 {
+			if state, elen := s.getStateAndLength(); !state && elen > 100 {
 				runtime.ReadMemStats(&m)
 				if m.Alloc >= max {
 					s.setMemSaveState()
@@ -209,4 +209,11 @@ func (s *Set) checkMemory() {
 			return
 		}
 	}
+}
+
+func (s *Set) getStateAndLength() (bool, int) {
+	s.Lock()
+	defer s.Unlock()
+
+	return s.memSaveState, len(s.elements)
 }
