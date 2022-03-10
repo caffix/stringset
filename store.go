@@ -1,3 +1,7 @@
+// Copyright © by Jeff Foley 2021-2022. All rights reserved.
+// Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
+// SPDX-License-Identifier: Apache-2.0
+
 package stringset
 
 import (
@@ -51,10 +55,8 @@ func (s *Set) storeHas(element string) bool {
 		if err == nil {
 			exists = true
 		}
-
 		return err
 	})
-
 	return exists
 }
 
@@ -94,10 +96,8 @@ func (s *Set) storeSlice() []string {
 				elements = append(elements, string(key))
 			}
 		}
-
 		return nil
 	})
-
 	return elements
 }
 
@@ -135,10 +135,8 @@ func (s *Set) storeSet(input string) error {
 	if input == "" {
 		return fmt.Errorf("String parsing failed")
 	}
-
 	for _, item := range strings.Split(input, ",") {
 		s.storeInsert(strings.TrimSpace(item))
 	}
-
 	return nil
 }

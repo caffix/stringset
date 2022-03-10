@@ -1,3 +1,7 @@
+// Copyright © by Jeff Foley 2021-2022. All rights reserved.
+// Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
+// SPDX-License-Identifier: Apache-2.0
+
 package stringset
 
 import (
@@ -158,7 +162,6 @@ func TestStoreString(t *testing.T) {
 					break
 				}
 			}
-
 			if !found {
 				t.Errorf("%s was missing from the set", e)
 			}
@@ -191,7 +194,6 @@ func TestStoreSet(t *testing.T) {
 					break
 				}
 			}
-
 			if !found {
 				t.Errorf("%s was missing from the set", e)
 			}

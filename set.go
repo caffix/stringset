@@ -1,3 +1,7 @@
+// Copyright © by Jeff Foley 2021-2022. All rights reserved.
+// Use of this source code is governed by Apache 2 LICENSE that can be found in the LICENSE file.
+// SPDX-License-Identifier: Apache-2.0
+
 package stringset
 
 import (
@@ -64,7 +68,6 @@ func (s *Set) Has(element string) bool {
 	if s.memSaveState {
 		return s.storeHas(element)
 	}
-
 	return s.memHas(element)
 }
 
@@ -75,8 +78,8 @@ func (s *Set) Insert(element string) {
 
 	if s.memSaveState {
 		s.storeInsert(element)
+		return
 	}
-
 	s.memInsert(element)
 }
 
@@ -87,8 +90,8 @@ func (s *Set) InsertMany(elements ...string) {
 
 	if s.memSaveState {
 		s.storeInsertMany(elements...)
+		return
 	}
-
 	s.memInsertMany(elements...)
 }
 
@@ -99,8 +102,8 @@ func (s *Set) Remove(element string) {
 
 	if s.memSaveState {
 		s.storeRemove(element)
+		return
 	}
-
 	s.memRemove(element)
 }
 
@@ -112,7 +115,6 @@ func (s *Set) Slice() []string {
 	if s.memSaveState {
 		return s.storeSlice()
 	}
-
 	return s.memSlice()
 }
 
@@ -123,8 +125,8 @@ func (s *Set) Union(other *Set) {
 
 	if s.memSaveState {
 		s.storeUnion(other)
+		return
 	}
-
 	s.memUnion(other)
 }
 
@@ -136,7 +138,6 @@ func (s *Set) Len() int {
 	if s.memSaveState {
 		return s.storeLen()
 	}
-
 	return s.memLen()
 }
 
@@ -147,8 +148,8 @@ func (s *Set) Subtract(other *Set) {
 
 	if s.memSaveState {
 		s.storeSubtract(other)
+		return
 	}
-
 	s.memSubtract(other)
 }
 
@@ -160,8 +161,8 @@ func (s *Set) Intersect(other *Set) {
 
 	if s.memSaveState {
 		s.storeIntersect(other)
+		return
 	}
-
 	s.memIntersect(other)
 }
 
@@ -173,7 +174,6 @@ func (s *Set) String() string {
 	if s.memSaveState {
 		return s.storeString()
 	}
-
 	return s.memString()
 }
 
@@ -185,7 +185,6 @@ func (s *Set) Set(input string) error {
 	if s.memSaveState {
 		return s.storeSet(input)
 	}
-
 	return s.memSet(input)
 }
 
@@ -198,7 +197,7 @@ func (s *Set) checkMemory() {
 	for {
 		select {
 		case <-t.C:
-			if state, elen := s.getStateAndLength(); !state && elen > 100 {
+			if state, elen := s.getStateAndLength(); !state && elen > 1000 {
 				runtime.ReadMemStats(&m)
 				if m.Alloc >= max {
 					s.setMemSaveState()
