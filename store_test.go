@@ -184,7 +184,7 @@ func TestStoreSet(t *testing.T) {
 		defer set.Close()
 		set.setMemSaveState()
 
-		set.storeSet(test.Value)
+		_ = set.storeSet(test.Value)
 		for _, e := range test.Expected {
 			var found bool
 

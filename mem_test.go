@@ -171,7 +171,7 @@ func TestMemSet(t *testing.T) {
 		set := New()
 		defer set.Close()
 
-		set.memSet(test.Value)
+		_ = set.memSet(test.Value)
 		for _, e := range test.Expected {
 			var found bool
 
